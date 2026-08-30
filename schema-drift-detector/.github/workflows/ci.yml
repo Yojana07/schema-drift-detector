@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install pytest
+
+      - name: Run unit tests
+        run: python -m pytest tests/ -v
+
+  schema-drift-check:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Check for breaking schema drift (demo fixtures)
+        working-directory: src
+        run: >
+          python cli.py
+          --baseline ../data/baseline_schema.json
+          --current ../data/current_schema_breaking.json
+          --table orders
+          --fail-on-breaking
+        continue-on-error: true
+        # In a real pipeline this step would point at the actual
+        # baseline/current schema snapshots pulled from the Delta table
+        # and would NOT continue-on-error — it's set here only so the
+        # demo workflow doesn't fail CI on the intentionally-breaking
+        # sample fixture.

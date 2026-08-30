@@ -1,0 +1,11 @@
+# Core (no dependencies needed for the JSON-based diff engine itself)
+
+# Optional: LLM-generated impact summaries
+anthropic>=0.40.0
+
+# Optional: Delta Lake / Spark integration
+pyspark>=3.5.0
+delta-spark>=3.1.0
+
+# Dev / testing
+pytest>=8.0.0
